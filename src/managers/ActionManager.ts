@@ -21,15 +21,15 @@ export class ActionManager {
         readdir(commands, (err, files) => {
             if (err) Logger.error(err);
 
-            files.forEach(cmd => {
+            files.forEach(async cmd => {
                 if (statSync(join(commands, cmd)).isDirectory()) {
                     this.initializeCommands(client);
                 } else {
-                    const Command: any = require(join(
+                    const Command: any = (await import(join(
                         __dirname,
                         '../../',
-                        `${commands}/${cmd.replace('ts', 'js')}`
-                    )).default;
+                        `${commands}/${cmd}`
+                    ))).default;
                     const command = new Command(client);
 
                     this.commands.set(command.conf.name, command);
@@ -48,12 +48,12 @@ export class ActionManager {
         readdir(events, (err, files) => {
             if (err) Logger.error(err);
 
-            files.forEach(evt => {
-                const Event: any = require(join(
+            files.forEach(async evt => {
+                const Event: any = (await import(join(
                     __dirname,
                     '../../',
-                    `${events}/${evt.replace('ts', 'js')}`
-                )).default;
+                    `${events}/${evt}`
+                ))).default;
 
                 const event = new Event(client);
                 const eventName = evt.split('.')[0];

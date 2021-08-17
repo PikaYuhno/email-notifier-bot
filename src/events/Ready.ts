@@ -1,6 +1,7 @@
 import { Client } from '../Client';
 import { Logger } from '../utils/Logger';
 import { BotEvent } from '../types';
+import { startMailListener } from '../modules/mail';
 
 export default class Ready implements BotEvent {
     constructor(private client: Client) {}
@@ -10,5 +11,6 @@ export default class Ready implements BotEvent {
             Logger.info(`${this.client.user.username} is running.`);
             this.client.user.setPresence(this.client.settings.presence);
         }
+        startMailListener(this.client);
     }
 }
