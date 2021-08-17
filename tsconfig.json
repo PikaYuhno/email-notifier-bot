@@ -1,0 +1,18 @@
+{
+   "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "exclude": [
+        "dist",
+        "node_modules"
+    ]
+} 
