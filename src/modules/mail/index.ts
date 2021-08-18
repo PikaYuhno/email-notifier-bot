@@ -30,7 +30,7 @@ export const startMailListener = (client: Client) => {
                     }
                 }
 
-                //await channel.threa
+                await channel.th
 
                 await channel.send(`<@&${config.roleToPingId}>`, { files }); */ 
             })
