@@ -2,13 +2,25 @@ import { Collection } from 'discord.js';
 import { Service } from 'typedi';
 import { join } from 'path';
 import { readdir, statSync } from 'fs';
-import { BotClient } from '../types/bot/bot';
+import { BotClient, Config } from '../types/bot/bot';
 import { Command } from '../Command';
 import { Logger } from '../utils/Logger';
 
 @Service()
 export class ActionManager {
     public commands: Collection<string, Command> = new Collection<string, Command>();
+    public guildConfig: Collection<string, Config> = new Collection<string, Config>();
+
+    // @todo load config from db
+    /**
+     * Parses files into commands from the configured command path.
+     * @param {BotClient} client The original client, for access to the configuration.
+     * @returns {Collection<string, Command>} A dictionary of every command in a [name, object] pair.
+     */
+    public initializeConfig(client: BotClient) {
+
+    }
+
 
     /**
      * Parses files into commands from the configured command path.

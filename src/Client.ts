@@ -1,7 +1,7 @@
 import { Collection, Client as DiscordClient } from 'discord.js';
 import { Service } from 'typedi';
 import { Logger } from './utils/Logger';
-import { BotSettings, BotClient } from './types';
+import { BotSettings, BotClient, Config } from './types';
 import { Command } from './Command';
 import { ActionManager } from './managers/ActionManager';
 import { settings as configuration } from './config/config';
@@ -29,5 +29,9 @@ export class Client extends DiscordClient implements BotClient {
 
     public get commands(): Collection<string, Command> {
         return this.actionManager.commands;
+    }
+
+    public get config(): Collection<string, Config> {
+        return this.actionManager.guildConfig;
     }
 }

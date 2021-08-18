@@ -1,3 +1,4 @@
+import { GuildConfig } from '@prisma/client';
 import {
     Client,
     TextChannel,
@@ -16,6 +17,7 @@ import { Command } from '../../Command';
 export interface BotClient extends Client {
     settings: BotSettings;
     commands: Collection<string, Command>;
+    config: Collection<string, Config>;
 }
 
 export interface CommandOptions {
@@ -49,3 +51,5 @@ export interface UserCooldown {
 
 export type AnyChannel = TextChannel | DMChannel | NewsChannel;
 export type EmbedOrMessage = MessageEmbed | string;
+
+export type Config = Omit<GuildConfig, "id" | "guildId">;
