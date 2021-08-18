@@ -1,4 +1,4 @@
-import { Collection, Client as DiscordClient } from 'discord.js';
+import { Collection, Client as DiscordClient, Intents } from 'discord.js';
 import { Service } from 'typedi';
 import { Logger } from './utils/Logger';
 import { BotSettings, BotClient, Config } from './types';
@@ -11,7 +11,7 @@ export class Client extends DiscordClient implements BotClient {
     public settings: BotSettings;
 
     constructor(private actionManager: ActionManager) {
-        super(configuration.clientOptions || {});
+        super(configuration.clientOptions || { intents: [Intents.FLAGS.DIRECT_MESSAGES] });
         this.settings = configuration;
         this.settings.token = process.env.BOT_TOKEN;
         this.initialize();

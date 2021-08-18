@@ -10,7 +10,8 @@ import {
     Guild,
     User,
     Collection,
-    NewsChannel
+    NewsChannel,
+    TextBasedChannels
 } from 'discord.js';
 import { Command } from '../../Command';
 
@@ -49,7 +50,7 @@ export interface UserCooldown {
     guild: Guild;
 }
 
-export type AnyChannel = TextChannel | DMChannel | NewsChannel;
+export type AnyChannel = TextBasedChannels;
 export type EmbedOrMessage = MessageEmbed | string;
 
 export type Config = Omit<GuildConfig, "id" | "guildId">;

@@ -1,4 +1,4 @@
-import { User, Message, Guild } from 'discord.js';
+import { User, Message, Guild, Permissions, MessageEmbed } from 'discord.js';
 import { AnyChannel, BotClient, CommandOptions, EmbedOrMessage, UserCooldown } from './types';
 
 export abstract class Command {
@@ -12,7 +12,7 @@ export abstract class Command {
             usage: options.usage || 'No usage specified.',
             category: options.category || 'Information',
             cooldown: options.cooldown || 1000,
-            requiredPermissions: options.requiredPermissions || ['READ_MESSAGES']
+            requiredPermissions: options.requiredPermissions || [Permissions.FLAGS.READ_MESSAGE_HISTORY]
         };
         this.cooldowns = new Set();
     }
@@ -28,10 +28,7 @@ export abstract class Command {
             [...this.cooldowns].filter(cd => cd.user === user && cd.guild === message.guild)
                 .length > 0;
         const hasPermission = message.member
-            ? message.member.hasPermission(this.conf.requiredPermissions, {
-                  checkAdmin: true,
-                  checkOwner: true
-              })
+            ? message.member.permissions.has(this.conf.requiredPermissions)
             : false;
 
         if (!hasPermission || onCooldown) {
@@ -67,7 +64,10 @@ export abstract class Command {
      * @returns {Promise<Command>} The original command, supports method chaining.
      */
     public async respond(channel: AnyChannel, message: EmbedOrMessage): Promise<Command> {
-        await channel.send(message);
+        if (typeof message === "string") 
+            await channel.send(message);
+        else
+            await channel.send({embeds: [message as MessageEmbed]});
 
         return this;
     }
@@ -77,5 +77,5 @@ export abstract class Command {
      * @param {Message} message The original message object that triggered the command.
      * @param {string[]} args The arguments that got sent with the message.
      */
-    public abstract async run(message: Message, args: string[]): Promise<void>;
+    public abstract run(message: Message, args: string[]): Promise<void>;
 }

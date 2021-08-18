@@ -11,16 +11,16 @@ import path from 'path';
 
 export const startMailListener = (client: Client) => {
     Logger.info(`Listening for new mails`);
-   // for (const [_, config] of client.config.entries()) {
+    //for (const [_, config] of client.config.entries()) {
         notifier(imapSettings)
             .on('mail', async (mail: ParsedMail) => {
-                
-             //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
-           //         return;
+                console.log("Mail", mail);
+                //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
+                //         return;
                 const filename = await takeScreenshot(mail);
-                
 
-              /*  const channel = client.channels.cache.get(config.channelToSendMsgId) as TextChannel;
+
+                /*const channel = client.channels.cache.get(config.channelToSendMsgId) as TextChannel;
                 const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${filename}.png`)];
 
                 if (mail.attachments) {
@@ -29,11 +29,17 @@ export const startMailListener = (client: Client) => {
                         files.push(new MessageAttachment(attachment.content, attachment.filename));
                     }
                 }
+                const thread = await channel.threads.create({
+                    name: mail.subject || "No subject",
+                    autoArchiveDuration: 60
+                });
 
-                await channel.th
-
-                await channel.send(`<@&${config.roleToPingId}>`, { files }); */ 
+                await thread.send({ 
+                    files,
+                    content: `<@&${config.roleToPingId}>`
+                 });*/
             })
             .start();
-          }
-          
+    //}
+}
+

@@ -1,29 +1,29 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\Ahmed Muaz\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add -D @types/discord.js
+  /usr/bin/node /usr/bin/yarn add -D @types/discord.js
 
 PATH: 
-  C:\Python39\Scripts\;C:\Python39\;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Program Files (x86)\Lenovo\FusionEngine;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Common Files\lenovo\easyplussdk\bin;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Lenovo\Bluetooth Software\;C:\Program Files\Lenovo\Bluetooth Software\syswow64;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\dotnet\;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Users\Ahmed Muaz\AppData\Local\Microsoft\PowerAppsCLI\;C:\Users\Ahmed Muaz\AppData\Local\Microsoft\WindowsApps;;C:\Users\Ahmed Muaz\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Ahmed Muaz\.dotnet\tools;C:\Users\Ahmed Muaz\AppData\Roaming\npm
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 Yarn version: 
-  1.22.11
+  1.22.10
 
 Node version: 
-  16.7.0
+  16.6.2
 
 Platform: 
-  win32 x64
+  linux x64
 
 Trace: 
   Error: https://registry.yarnpkg.com/@types%2fdiscord.js: Not found
-      at Request.params.callback [as _callback] (C:\Users\Ahmed Muaz\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:66992:18)
-      at Request.self.callback (C:\Users\Ahmed Muaz\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:140763:22)
+      at Request.params.callback [as _callback] (/usr/lib/node_modules/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/lib/node_modules/yarn/lib/cli.js:140662:22)
       at Request.emit (node:events:394:28)
-      at Request.<anonymous> (C:\Users\Ahmed Muaz\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141735:10)
+      at Request.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141634:10)
       at Request.emit (node:events:394:28)
-      at IncomingMessage.<anonymous> (C:\Users\Ahmed Muaz\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141657:12)
+      at IncomingMessage.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141556:12)
       at Object.onceWrapper (node:events:513:28)
       at IncomingMessage.emit (node:events:406:35)
-      at endReadableNT (node:internal/streams/readable:1348:12)
+      at endReadableNT (node:internal/streams/readable:1331:12)
       at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 

@@ -7,10 +7,10 @@ dotenv.config();
 
 export const settings: BotSettings = {
     presence: {
-        activity: {
+        activities: [{
             name: '!help for commands',
-            type: 'PLAYING'
-        }
+            type: 'PLAYING',
+        }]
     },
     prefix: '!',
     paths: {

@@ -18,7 +18,7 @@ export const takeScreenshot = async (mail: any): Promise<string> => {
     await page.setContent(mail.html as string);
     const from = mail.from[0].address
     const f = mail.headers.from;
-    const to = mail.to[0].address;
+    const to = mail.to.map((addr: any) => addr.name).join(", ");
     const subject = mail.subject;
 
     console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
