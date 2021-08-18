@@ -4,6 +4,7 @@ import { BotClient } from '../types';
 
 export default class Configure extends Command {
     constructor(client: BotClient) {
+
         super(client, {
             name: 'configure',
             description: 'Configures the bot',
@@ -16,6 +17,7 @@ export default class Configure extends Command {
 
     // @todo get config
     // create or update db
+    // !configure channel <id> role <id>
     public async run(message: Message): Promise<void> {
 
     }

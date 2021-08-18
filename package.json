@@ -20,7 +20,7 @@
   "homepage": "https://github.com/PikaYuhno/email-notifier-bot#readme",
   "dependencies": {
     "@prisma/client": "2.29.1",
-    "discord.js": "^12.3.1",
+    "discord.js": "^13.1.0",
     "dotenv": "^8.0.0",
     "mail-notifier": "^0.5.0",
     "puppeteer": "^10.2.0",
