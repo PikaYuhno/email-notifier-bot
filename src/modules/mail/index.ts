@@ -1,5 +1,6 @@
 // @ts-ignore
 import notifier from 'mail-notifier';
+// @ts-ignore 
 import { ParsedMail } from 'mailparser';
 import { Client } from '../../Client';
 import { imapSettings } from '../../config/config';
@@ -10,14 +11,16 @@ import path from 'path';
 
 export const startMailListener = (client: Client) => {
     Logger.info(`Listening for new mails`);
-    for (const [_, config] of client.config) {
+   // for (const [_, config] of client.config.entries()) {
         notifier(imapSettings)
             .on('mail', async (mail: ParsedMail) => {
-                if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
-                    return;
+                
+             //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
+           //         return;
                 const filename = await takeScreenshot(mail);
+                
 
-                const channel = client.channels.cache.
+              /*  const channel = client.channels.cache.get(config.channelToSendMsgId) as TextChannel;
                 const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${filename}.png`)];
 
                 if (mail.attachments) {
@@ -29,8 +32,8 @@ export const startMailListener = (client: Client) => {
 
                 await channel.th
 
-                //await channel.send(`<@&${config.roleToPingId}>`, { files });
+                await channel.send(`<@&${config.roleToPingId}>`, { files }); */ 
             })
             .start();
-    }
-}
+          }
+          

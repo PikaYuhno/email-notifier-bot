@@ -1,4 +1,4 @@
-import { BotSettings } from '../types/bot/bot';
+import { BotSettings } from '../types/bot/Bot';
 import { MailParser } from 'mailparser';
 import { Config } from 'imap'
 import * as dotenv from 'dotenv';
