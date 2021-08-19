@@ -23,19 +23,17 @@ export const startMailListener = async (client: BotClient) => {
         await channel.send(`Listening for new mails`);
         const filename = await takeScreenshot(mail);
 
-
         const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${filename}.png`)];
 
-        console.log(mail.attachments ? "YES" : "NO");
+        let sum = 0;
         if (mail.attachments) {
-            console.log("HERE")
             for (let i = 0; i < mail.attachments.length; i++) {
                 const attachment = mail.attachments[i];
-                console.log("Attactment " + i);
-                files.push(new MessageAttachment(attachment.content, attachment.filename));
+                sum += attachment.content.length
+                files.push(new MessageAttachment(attachment.content, (<any>attachment).generatedFileName));
             }
         }
-        console.log("Len", files.length);
+
         const thread = await channel.threads.create({
             name: mail.subject || "No subject",
             autoArchiveDuration: 60
