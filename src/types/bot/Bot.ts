@@ -18,7 +18,7 @@ import { Command } from '../../Command';
 export interface BotClient extends Client {
     settings: BotSettings;
     commands: Collection<string, Command>;
-    config: Collection<string, Config>;
+    config: Config;
 }
 
 export interface CommandOptions {
@@ -53,4 +53,7 @@ export interface UserCooldown {
 export type AnyChannel = TextBasedChannels;
 export type EmbedOrMessage = MessageEmbed | string;
 
-export type Config = Omit<GuildConfig, "id" | "guildId">;
+export type Config = {
+    channelId: string;
+    roleId: string;
+};
