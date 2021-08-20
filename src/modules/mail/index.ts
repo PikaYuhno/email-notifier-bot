@@ -46,7 +46,7 @@ export const startMailListener = async (client: BotClient) => {
             content: `<@&${client.config.roleId}>`
         });
 
-        await thread.send({
+        attachments.length > 0 && await thread.send({
             files: attachments,
             content: `**Attachments:**`
         });
