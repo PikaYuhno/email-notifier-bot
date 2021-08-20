@@ -4,34 +4,33 @@ import notifier from "mail-notifier";
 import { Logger } from "../../utils/Logger";
 
 export default abstract class Notifier {         
-    public static notiferInstance: any = notifier(imapSettings);
-    public static notiferR: any;
+    public static notifierInstance: any = notifier(imapSettings);
     public static status: "running" | "stopped" = "stopped";
     public static started: boolean = false;
 
     public static start(startCB: Function) {
         if (this.status === "running")
-            this.notiferR.stop(); 
+            this.notifierInstance.stop(); 
 
         if (!this.started)  {
-            this.notiferR = this.notiferInstance.on("mail", startCB);
+            this.notifierInstance = this.notifierInstance.on("mail", startCB);
             this.started = true;
         }
-        this.notiferR.on("error", (err: any) => Logger.error("Error" + err));
-        this.notiferR.on("end", () => Logger.info("Endet connection!"));
+        this.notifierInstance.on("error", (err: any) => {
+            // restart
+            this.notifierInstance.stop();
+            this.notifierInstance.start();
+        });
 
-        this.notiferR.start();
+        this.notifierInstance.start();
         this.status = "running";
         Logger.info("Started listenting");
     }
 
     public static stop() {
         if (this.status === "stopped") return;
-        this.notiferR.stop();
+        this.notifierInstance.stop();
         this.status = "stopped";
         Logger.info("Stopped listening");
     }
 }
-
-
-//export default notifier(imapSettings);

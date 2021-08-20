@@ -2,15 +2,16 @@ import { Cluster } from 'puppeteer-cluster';
 // @ts-ignore 
 import { Attachment } from 'mailparser';
 import { styles } from './style';
+import { ExtractedData } from '../../types';
 
-export const takeScreenshot = async (mail: any): Promise<string> => {
+export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const cluster: Cluster<any> = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: 2,
     });
 
     const filename = Date.now().toString();
-    await cluster.execute({ mail, filename }, async ({ page, data }) => {
+    const extractedData = await cluster.execute({ mail, filename }, async ({ page, data }): Promise<ExtractedData> => {
         const { mail, filename } = data;
 
         await page.setContent(mail.html as string);
@@ -20,7 +21,7 @@ export const takeScreenshot = async (mail: any): Promise<string> => {
         const subject = mail.subject;
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
-        if (!from || !to || !subject) return;
+        if (!from || !to || !subject) return {};
 
         await page.$eval('head', (element, params) => {
             const { styles } = params as any;
@@ -67,11 +68,16 @@ export const takeScreenshot = async (mail: any): Promise<string> => {
             }
         }
 
-        await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` })
+        const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
+
+        return {
+            screenshotBuffer: output,
+            filename
+        }
     });
 
     await cluster.idle();
     await cluster.close();
 
-    return filename;
+    return extractedData;
 };

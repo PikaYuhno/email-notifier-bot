@@ -9,7 +9,6 @@ import Notifier from './notifier';
 import { BotClient } from '../../types';
 
 export const startMailListener = async (client: BotClient) => {
-    //Logger.info(`Listening for new mails`);
     const { channelId, roleId } = client.config;
     if (!channelId || !roleId) return;
     Logger.debug(`Status ${Notifier.status}`)
@@ -21,16 +20,19 @@ export const startMailListener = async (client: BotClient) => {
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         await channel.send(`Listening for new mails`);
-        const filename = await takeScreenshot(mail);
+        Logger.info(`Listening for new mails`);
+        const extractedData = await takeScreenshot(mail);
 
-        const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${filename}.png`)];
+        if (extractedData && Object.keys(extractedData).length === 0 && extractedData.constructor === Object) return;
 
-        let sum = 0;
+
+        const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${extractedData.filename}.png`)];
+        let attachments: (string | MessageAttachment)[] = [];
+
         if (mail.attachments) {
             for (let i = 0; i < mail.attachments.length; i++) {
                 const attachment = mail.attachments[i];
-                sum += attachment.content.length
-                files.push(new MessageAttachment(attachment.content, (<any>attachment).generatedFileName));
+                attachments.push(new MessageAttachment(attachment.content, (<any>attachment).generatedFileName));
             }
         }
 
@@ -42,6 +44,11 @@ export const startMailListener = async (client: BotClient) => {
         await thread.send({
             files,
             content: `<@&${client.config.roleId}>`
+        });
+
+        await thread.send({
+            files: attachments,
+            content: `**Attachments:**`
         });
     })
 }
