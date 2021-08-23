@@ -1,9 +1,8 @@
 // @ts-ignore 
 import { ParsedMail } from 'mailparser';
-import { imapSettings } from '../../config/config';
 import { takeScreenshot } from '../screenshot';
 import { Logger } from '../../utils/Logger';
-import { MessageAttachment, TextBasedChannelFields, TextChannel } from 'discord.js';
+import { MessageAttachment, TextChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
@@ -24,7 +23,6 @@ export const startMailListener = async (client: BotClient) => {
         const extractedData = await takeScreenshot(mail);
 
         if (extractedData && Object.keys(extractedData).length === 0 && extractedData.constructor === Object) return;
-
 
         const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${extractedData.filename}.png`)];
         let attachments: (string | MessageAttachment)[] = [];
@@ -52,4 +50,3 @@ export const startMailListener = async (client: BotClient) => {
         });
     })
 }
-
