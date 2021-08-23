@@ -11,7 +11,7 @@ export class Client extends DiscordClient implements BotClient {
     public settings: BotSettings;
 
     constructor(private actionManager: ActionManager) {
-        super(configuration.clientOptions || { intents: [Intents.FLAGS.DIRECT_MESSAGES] });
+        super(configuration.clientOptions || { intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]});
         this.settings = configuration;
         this.settings.token = process.env.BOT_TOKEN;
         this.initialize();
@@ -21,6 +21,7 @@ export class Client extends DiscordClient implements BotClient {
         try {
             this.actionManager.initializeCommands(this);
             this.actionManager.initializeEvents(this);
+            this.actionManager.initializeConfig(this);
             await this.login(configuration.token);
         } catch (e) {
             Logger.error(`Could not initialize bot: ${e}`);
@@ -31,7 +32,11 @@ export class Client extends DiscordClient implements BotClient {
         return this.actionManager.commands;
     }
 
-    public get config(): Collection<string, Config> {
+    public get config(): Config {
         return this.actionManager.guildConfig;
+    }
+
+    public set config(config: Config) {
+        this.actionManager.guildConfig = config;
     }
 }

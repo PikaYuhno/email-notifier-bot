@@ -2,8 +2,9 @@
 import { Message as DiscordMessage } from 'discord.js';
 import { Client } from '../Client';
 import { BotEvent } from '../types';
+import { Logger } from '../utils/Logger';
 
-export default class Message implements BotEvent {
+export default class MessageCreate implements BotEvent {
     constructor(private client: Client) {}
 
     public async run(args: any): Promise<void> {

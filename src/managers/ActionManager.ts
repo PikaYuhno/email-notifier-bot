@@ -5,27 +5,28 @@ import { readdir, statSync } from 'fs';
 import { BotClient, Config } from '../types/bot/Bot';
 import { Command } from '../Command';
 import { Logger } from '../utils/Logger';
+import fs from 'fs';
 
 @Service()
 export class ActionManager {
     public commands: Collection<string, Command> = new Collection<string, Command>();
-    public guildConfig: Collection<string, Config> = new Collection<string, Config>();
+    public guildConfig: Config = { channelId: "", roleId: ""};
 
-    // @todo load config from db
     /**
      * Parses files into commands from the configured command path.
      * @param {BotClient} client The original client, for access to the configuration.
-     * @returns {Collection<string, Command>} A dictionary of every command in a [name, object] pair.
      */
-    public initializeConfig(client: BotClient) {
-
+    public initializeConfig(client: BotClient): void {
+        let rawdata = fs.readFileSync("./config.json", {
+            encoding: "utf-8"
+        });
+        let config = JSON.parse(rawdata);
+        this.guildConfig = config;
     }
 
-
     /**
      * Parses files into commands from the configured command path.
      * @param {BotClient} client The original client, for access to the configuration.
-     * @returns {Collection<string, Command>} A dictionary of every command in a [name, object] pair.
      */
     public initializeCommands(client: BotClient): void {
         const { commands } = client.settings.paths;
