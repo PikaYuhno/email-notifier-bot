@@ -13,7 +13,6 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const filename = Date.now().toString();
     const extractedData = await cluster.execute({ mail, filename }, async ({ page, data }): Promise<ExtractedData> => {
         const { mail, filename } = data;
-
         await page.setContent(mail.html as string);
         const from = mail.from[0].address
         const f = mail.headers.from;
@@ -36,7 +35,26 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
             const { from, to, subject, f } = params as any;
 
             (element as HTMLBodyElement).style.backgroundColor = "#36393f";
+            let result = Array.from((element as HTMLBodyElement).getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
+            for (let i = 0; i < result.length; i++) {
+                let colors = (result[i] as any).style.color.replaceAll(' ', '');
 
+                let matchedColors = /rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/;
+                let matched = colors.match(matchedColors);
+                if (matched != null) {
+                    matched.shift();
+                    var luma = 0.2126 * matched[0] + 0.7152 * matched[1] + 0.0722 * matched[2];
+                    if (luma < 40 && luma > 10) {
+                        matched[0] += 80;
+                        matched[1] += 80;
+                        matched[2] += 80;
+                        result[i].style.color = `rgb(${matched[0]}, ${matched[1]}, ${matched[2]})`;
+                    }
+                    else if(luma <10){
+                      result[i].style.color = "#dcddde";
+                    }
+                }
+            }
             element.insertAdjacentHTML("afterbegin", `
               <div class="Mail">
                 <div class="header">
