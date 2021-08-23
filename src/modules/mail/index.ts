@@ -49,6 +49,6 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
-        const linkMessages = await channel.send(extractedData.links as string);
+        await thread.send(extractedData.links as string);
     })
 }
