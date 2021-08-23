@@ -52,7 +52,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                 if (matched != null) {
                     matched.shift();
                     var luma = 0.2126 * matched[0] + 0.7152 * matched[1] + 0.0722 * matched[2];
-                    if (luma < 40 && luma > 10) {
+                    if (luma < 61 && luma > 10) {
                         matched[0] += 80;
                         matched[1] += 80;
                         matched[2] += 80;
@@ -61,6 +61,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                     else if(luma <10){
                       result[i].style.color = "#dcddde";
                     }
+
+                }
+                else{
+                    result[i].style.color = "#dcddde";
                 }
             }
             element.insertAdjacentHTML("afterbegin", `
