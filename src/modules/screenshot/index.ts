@@ -3,6 +3,7 @@ import { Cluster } from 'puppeteer-cluster';
 import { Attachment } from 'mailparser';
 import { styles } from './style';
 import { ExtractedData } from '../../types';
+import  GetUrls from 'get-urls';
 
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const cluster: Cluster<any> = await Cluster.launch({
@@ -18,6 +19,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const f = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
         const subject = mail.subject;
+ 
+        const content = await page.content();
+
+        
+       
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
         if (!from || !to || !subject) return {};
@@ -89,9 +95,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         }
 
         const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
-
+        const urls = GetUrls(content);
+        var links =[urls].join(' ');
         return {
             screenshotBuffer: output,
+            links: links,
             filename
         }
     });
