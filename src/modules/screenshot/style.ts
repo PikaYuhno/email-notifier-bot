@@ -73,9 +73,7 @@ span,p,div,h1,h2,h3,h4,h5,h6,tr,td,b,ul,li,* {
    color:#dcddde;
    
 }
-[color="rgb(60, 60, 60)"] {
-   color:#dcddde !important;
-}
+
 a{
     color: lightblue;
 }
