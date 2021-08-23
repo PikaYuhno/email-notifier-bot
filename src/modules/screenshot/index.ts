@@ -32,8 +32,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         }, { styles });
 
         await page.$eval('body', (element, params) => {
-            const { from, to, subject, f } = params as any;
-
+            const { from, to, subject, f  } = params as any;
+            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit',hour:'2-digit',minute:'2-digit' } as const;
+            let today  = new Date();
+            let date =today.toLocaleDateString("de-DE", options);
             (element as HTMLBodyElement).style.backgroundColor = "#36393f";
             let result = Array.from((element as HTMLBodyElement).getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
             for (let i = 0; i < result.length; i++) {
@@ -63,7 +65,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                      <span class="from">${f}</span>
                        ${from}
                    </div>
-                   <div class="time">18.08.2021</div>
+                   <div class="time">${date}</div>
                   </h3>
                   <h6 class="to">to: ${to}</h6>
                 </div>
