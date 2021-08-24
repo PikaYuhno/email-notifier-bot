@@ -2,31 +2,34 @@
 import { ParsedMail } from 'mailparser';
 import { takeScreenshot } from '../screenshot';
 import { Logger } from '../../utils/Logger';
-import { Message, MessageAttachment, TextChannel } from 'discord.js';
+import { MessageAttachment, TextChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
-import { MessageOptions } from 'child_process';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
-    if (!channelId || !roleId) return;
-    Logger.debug(`Status ${Notifier.status}`)
+    // check if channel and roles actually exist
+    if (!channelId || !roleId) return Logger.error("ChannelId or RoleId not found in config");
+    const channel = client.channels.cache.get(channelId) as TextChannel;
+    const role = channel.guild.roles.cache.has(roleId);
+    if (!channel || !role) return Logger.error("Channel or Role not found");
+
     Notifier.start(async (mail: ParsedMail) => {
+        Logger.info("Processing mail...");
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
         console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
-        await channel.send(`Listening for new mails`);
-        Logger.info(`Listening for new mails`);
         const extractedData = await takeScreenshot(mail);
 
         if (extractedData && Object.keys(extractedData).length === 0 && extractedData.constructor === Object) return;
 
         const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${extractedData.filename}.png`)];
         let attachments: (string | MessageAttachment)[] = [];
+        const links = Array.from(extractedData.links!);
 
         if (mail.attachments) {
             for (let i = 0; i < mail.attachments.length; i++) {
@@ -40,6 +43,7 @@ export const startMailListener = async (client: BotClient) => {
             autoArchiveDuration: 60
         });
 
+        Logger.info("Sending email to discord...");
         await thread.send({
             files,
             content: `<@&${client.config.roleId}>`
@@ -50,7 +54,6 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
-        let array = Array.from(extractedData.links!);
-        array.length > 0 && await thread.send(`**Links:**\n${array.join("\n")}`);
+        links.length > 0 && await thread.send(`**Links:**\n${links.join("\n")}`);
     })
 }

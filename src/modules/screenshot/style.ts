@@ -78,6 +78,7 @@ export const styles = `
 
     body {
         margin: 2rem;
+        background-color: #36393f;
     }
 
     hr {

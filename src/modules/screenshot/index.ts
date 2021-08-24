@@ -1,78 +1,69 @@
-import { Cluster } from 'puppeteer-cluster';
 // @ts-ignore 
 import { Attachment } from 'mailparser';
 import { styles } from './style';
 import { ExtractedData } from '../../types';
-import { ElementHandle } from 'puppeteer';
+import puppeteer from 'puppeteer';
+import { Logger } from '../../utils/Logger';
 
-
+// using any type because lib doesn't come with correct types
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
-    const cluster: Cluster<any> = await Cluster.launch({
-        concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: 2,
-    });
+    Logger.info("Taking screenshot...");
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
     const filename = Date.now().toString();
-    const extractedData = await cluster.execute({ mail, filename }, async ({ page, data }): Promise<ExtractedData> => {
-        const { mail, filename } = data;
-        await page.setContent(mail.html as string);
+
+    // @todo filter script tags
+    await page.setContent(mail.html as string);
+
+    await page.exposeFunction("getContent", (att: Attachment) => Buffer.from(att.content).toString("base64"));
+
+    await page.evaluate(async (mail, styles) => {
+
+        // Get all infos
         const from = mail.from[0].address
-        const f = mail.headers.from;
+        const fromName = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
         const subject = mail.subject;
- 
-        const content = await page.content();
-
-        
+        // @todo get date from mail
+        const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
+        const date = new Date().toLocaleDateString("de-DE", options);
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
         if (!from || !to || !subject) return {};
 
-        await page.$eval('head', (element, params) => {
-            const { styles } = params as any;
-            element.insertAdjacentHTML("afterbegin", `
-              <style>
-                  ${styles}
-              </style>
-          `)
-        }, { styles });
+        // init styles
+        const head = document.querySelector("head")!;
+        head.insertAdjacentHTML("afterbegin", `<style>${styles}</style>`)
 
-        await page.$eval('body', (element, params) => {
-            const { from, to, subject, f } = params as any;
-            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
-            let today = new Date();
-            let date = today.toLocaleDateString("de-DE", options);
-            (element as HTMLBodyElement).style.backgroundColor = "#36393f";
-            let result = Array.from((element as HTMLBodyElement).getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
-            for (let i = 0; i < result.length; i++) {
-                let colors = (result[i] as any).style.color.replaceAll(' ', '');
+        // add infos to html
+        const body = document.querySelector("body")!;
+        const elements = Array.from(body.getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
+        for (const element of elements) {
+            let colors = element.style.color.replace(/\s+/g, '');
 
-                let matchedColors = /rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/;
-                let matched = colors.match(matchedColors);
-                if (matched != null) {
-                    matched.shift();
-                    var luma = 0.2126 * matched[0] + 0.7152 * matched[1] + 0.0722 * matched[2];
-                    if (luma < 61 && luma > 10) {
-                        matched[0] += 80;
-                        matched[1] += 80;
-                        matched[2] += 80;
-                        result[i].style.color = `rgb(${matched[0]}, ${matched[1]}, ${matched[2]})`;
-                    }
-                    else if (luma < 10) {
-                        result[i].style.color = "#dcddde";
-                    }
-
-                }
-                else {
-                    result[i].style.color = "#dcddde";
-                }
+            // regex for rgb
+            let matched = colors.match(/rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/);
+            if (matched === null) {
+                element.style.color = "#dcddde";
+                continue;
             }
-            element.insertAdjacentHTML("afterbegin", `
+            matched.shift();
+            let rgb = matched.map(Number);
+            const luma = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+            if (luma < 61 && luma > 10) {
+                rgb = rgb.map(val => val + 80);
+                element.style.color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+            } else if (luma < 10) {
+                element.style.color = "#dcddde";
+            }
+        }
+        body.insertAdjacentHTML("afterbegin", `
               <div class="Mail">
                 <div class="header">
                   <h3 class="from2">
                    <div>
-                     <span class="from">${f}</span>
+                     <span class="from">${fromName}</span>
                        ${from}
                    </div>
                    <div class="time">${date}</div>
@@ -82,35 +73,31 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                 <h2 class="subject">Subject: ${subject}</h2>
               </div>
         `)
-        }, { from, to, subject, f });
 
-        await page.exposeFunction("getContent", (att: Attachment) => {
-            return Buffer.from(att.content).toString("base64");;
-        })
-
+        // show images in the email image if there are any
         if (mail.attachments) {
             for (let i = 0; i < mail.attachments.length; i++) {
                 const attachment = mail.attachments[i];
-                await page.$eval(`img[src="cid:${attachment.contentId}"]`, async (element, attachment) => {
-                    const content = await (window as any).getContent(attachment);
-                    (element as HTMLImageElement).src = `data:image;base64,${content}`;
-                }, attachment);
+                const contentType = attachment.contentType.split("/")[0];
+                if (contentType !== "image") continue;
+                const image = document.querySelector<HTMLImageElement>(`img[src="cid:${attachment.contentId}"]`)!;
+                const content = await (window as any).getContent(attachment);
+                image.src = `data:image;base64,${content}`;
             }
         }
+    }, mail, styles);
 
-        const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
+    const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
 
-        const links = new Set(await page.$$eval('a',(list)=>(list.map(elm => (elm as HTMLAnchorElement).href))));
-        console.log(links);
-        return {
-            screenshotBuffer: output,
-            links: links,
-            filename
-        }
-    });
+    // extract all links from the html
+    // @todo filter wrong links (e.g. mailto:foo@example.com)
+    const links = new Set(await page.$$eval('a', (elements) => (elements.map(elm => (elm as HTMLAnchorElement).href))));
 
-    await cluster.idle();
-    await cluster.close();
+    await browser.close();
 
-    return extractedData;
+    return {
+        screenshotBuffer: output,
+        links,
+        filename
+    }
 };
