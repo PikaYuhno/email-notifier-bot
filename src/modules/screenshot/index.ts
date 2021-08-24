@@ -4,6 +4,7 @@ import { Attachment } from 'mailparser';
 import { styles } from './style';
 import { ExtractedData } from '../../types';
 import  GetUrls from 'get-urls';
+import { ElementHandle } from 'puppeteer';
 
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const cluster: Cluster<any> = await Cluster.launch({
@@ -23,7 +24,6 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const content = await page.content();
 
         
-       
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
         if (!from || !to || !subject) return {};
@@ -100,10 +100,16 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
         const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
         const urls = GetUrls(content);
-        var links =[urls].join(' ');
+
+        const links = await page.$$eval('a',(list)=> list.map((elm) => (elm as HTMLAnchorElement).href));
+
+        var setLinks = new Set(links);
+         
+        //var links =[urls].join(' ');
+        console.log(links);
         return {
             screenshotBuffer: output,
-            links: links,
+            links: setLinks,
             filename
         }
     });

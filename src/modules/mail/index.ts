@@ -2,10 +2,11 @@
 import { ParsedMail } from 'mailparser';
 import { takeScreenshot } from '../screenshot';
 import { Logger } from '../../utils/Logger';
-import { MessageAttachment, TextChannel } from 'discord.js';
+import { Message, MessageAttachment, TextChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
+import { MessageOptions } from 'child_process';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
@@ -49,6 +50,14 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
-        await thread.send(extractedData.links as string);
+        let links = "**Links**:\n";
+        extractedData.links?.forEach(v => {
+            //array.push(v);
+            links += v + "\n";
+
+        });
+
+        await thread.send(links);
+
     })
 }
