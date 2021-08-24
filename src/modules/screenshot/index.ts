@@ -3,6 +3,8 @@ import { Cluster } from 'puppeteer-cluster';
 import { Attachment } from 'mailparser';
 import { styles } from './style';
 import { ExtractedData } from '../../types';
+import { ElementHandle } from 'puppeteer';
+
 
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const cluster: Cluster<any> = await Cluster.launch({
@@ -18,6 +20,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const f = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
         const subject = mail.subject;
+ 
+        const content = await page.content();
+
+        
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
         if (!from || !to || !subject) return {};
@@ -32,10 +38,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         }, { styles });
 
         await page.$eval('body', (element, params) => {
-            const { from, to, subject, f  } = params as any;
-            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit',hour:'2-digit',minute:'2-digit' } as const;
-            let today  = new Date();
-            let date =today.toLocaleDateString("de-DE", options);
+            const { from, to, subject, f } = params as any;
+            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
+            let today = new Date();
+            let date = today.toLocaleDateString("de-DE", options);
             (element as HTMLBodyElement).style.backgroundColor = "#36393f";
             let result = Array.from((element as HTMLBodyElement).getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
             for (let i = 0; i < result.length; i++) {
@@ -52,12 +58,12 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                         matched[2] += 80;
                         result[i].style.color = `rgb(${matched[0]}, ${matched[1]}, ${matched[2]})`;
                     }
-                    else if(luma <10){
-                      result[i].style.color = "#dcddde";
+                    else if (luma < 10) {
+                        result[i].style.color = "#dcddde";
                     }
 
                 }
-                else{
+                else {
                     result[i].style.color = "#dcddde";
                 }
             }
@@ -94,8 +100,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
         const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
 
+        const links = new Set(await page.$$eval('a',(list)=>(list.map(elm => (elm as HTMLAnchorElement).href))));
+        console.log(links);
         return {
             screenshotBuffer: output,
+            links: links,
             filename
         }
     });
