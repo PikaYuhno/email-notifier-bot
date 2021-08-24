@@ -50,19 +50,7 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
-        let links = "**Links**:\n";
-        let empty = true;
-        extractedData.links?.forEach(v => {
-            if (v != null) {
-                empty = false;
-                links += v + "\n";
-            }
-        });
-
-        if (!empty) {
-            await thread.send(links);
-        }
-
-
+        let array = Array.from(extractedData.links!);
+        array.length > 0 && await thread.send(`**Links:**\n${array.join("\n")}`);
     })
 }

@@ -100,12 +100,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
         const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
 
-        const links = await page.$$eval('a',(list)=> list.map((elm) => (elm as HTMLAnchorElement).href));
-        var setLinks = new Set(links);
+        const links = new Set(await page.$$eval('a',(list)=>(list.map(elm => (elm as HTMLAnchorElement).href))));
         console.log(links);
         return {
             screenshotBuffer: output,
-            links: setLinks,
+            links: links,
             filename
         }
     });
