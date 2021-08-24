@@ -51,13 +51,18 @@ export const startMailListener = async (client: BotClient) => {
         });
 
         let links = "**Links**:\n";
+        let empty = true;
         extractedData.links?.forEach(v => {
-            //array.push(v);
-            links += v + "\n";
-
+            if (v != null) {
+                empty = false;
+                links += v + "\n";
+            }
         });
 
-        await thread.send(links);
+        if (!empty) {
+            await thread.send(links);
+        }
+
 
     })
 }
