@@ -4,6 +4,7 @@ import { Attachment } from 'mailparser';
 import { styles } from './style';
 import { ExtractedData } from '../../types';
 
+
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const cluster: Cluster<any> = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
@@ -32,10 +33,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         }, { styles });
 
         await page.$eval('body', (element, params) => {
-            const { from, to, subject, f  } = params as any;
-            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit',hour:'2-digit',minute:'2-digit' } as const;
-            let today  = new Date();
-            let date =today.toLocaleDateString("de-DE", options);
+            const { from, to, subject, f } = params as any;
+            const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
+            let today = new Date();
+            let date = today.toLocaleDateString("de-DE", options);
             (element as HTMLBodyElement).style.backgroundColor = "#36393f";
             let result = Array.from((element as HTMLBodyElement).getElementsByTagName('*') as HTMLCollectionOf<HTMLElement>);
             for (let i = 0; i < result.length; i++) {
@@ -46,15 +47,19 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                 if (matched != null) {
                     matched.shift();
                     var luma = 0.2126 * matched[0] + 0.7152 * matched[1] + 0.0722 * matched[2];
-                    if (luma < 40 && luma > 10) {
+                    if (luma < 61 && luma > 10) {
                         matched[0] += 80;
                         matched[1] += 80;
                         matched[2] += 80;
                         result[i].style.color = `rgb(${matched[0]}, ${matched[1]}, ${matched[2]})`;
                     }
-                    else if(luma <10){
-                      result[i].style.color = "#dcddde";
+                    else if (luma < 10) {
+                        result[i].style.color = "#dcddde";
                     }
+
+                }
+                else {
+                    result[i].style.color = "#dcddde";
                 }
             }
             element.insertAdjacentHTML("afterbegin", `
@@ -90,8 +95,12 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
         const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
 
+        const links = await page.$$eval('a', (list) => list.map((elm) => (elm as HTMLAnchorElement).href));
+        var setLinks = new Set(links);
+        console.log(links);
         return {
             screenshotBuffer: output,
+            links: setLinks,
             filename
         }
     });
