@@ -73,7 +73,7 @@ export const styles = `
     }
 
     a {
-        color: lightblue;
+        color: lightblue !important; 
     }
 
     body {
