@@ -12,5 +12,6 @@ export default class GuildCreate implements BotEvent {
             roleId: ""
         });
         fs.writeFileSync('./config.json', data);
+        this.client.user?.setPresence({activities: [{name: 'Bot is not configured!', type: 'PLAYING'}]});
     }
 }

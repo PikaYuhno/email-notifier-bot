@@ -1,4 +1,4 @@
-import { Collection } from 'discord.js';
+import { Collection, TextChannel } from 'discord.js';
 import { Service } from 'typedi';
 import { join } from 'path';
 import { readdir, statSync } from 'fs';
@@ -10,7 +10,7 @@ import fs from 'fs';
 @Service()
 export class ActionManager {
     public commands: Collection<string, Command> = new Collection<string, Command>();
-    public guildConfig: Config = { channelId: "", roleId: ""};
+    public guildConfig: Config = { channelId: "", roleId: "" };
 
     /**
      * Parses files into commands from the configured command path.
@@ -18,10 +18,18 @@ export class ActionManager {
      */
     public initializeConfig(client: BotClient): void {
         let rawdata = fs.readFileSync("./config.json", {
-            encoding: "utf-8"
+            encoding: "utf-8",
+            flag: 'a+'
         });
-        let config = JSON.parse(rawdata);
-        this.guildConfig = config;
+        let config = null;
+        try {
+            config = JSON.parse(rawdata);
+        } catch (error) {
+            config = { channelId: "", roleId: "" };
+        }
+        const { channelId, roleId } = config;
+        if (!channelId || !roleId) this.guildConfig = { channelId: "", roleId: "" };
+        else this.guildConfig = config;
     }
 
     /**

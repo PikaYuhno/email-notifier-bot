@@ -13,9 +13,6 @@ export const startMailListener = async (client: BotClient) => {
 
     // check if channel and roles actually exist
     if (!channelId || !roleId) return Logger.error("ChannelId or RoleId not found in config");
-    const channel = client.channels.cache.get(channelId) as TextChannel;
-    const role = channel.guild.roles.cache.has(roleId);
-    if (!channel || !role) return Logger.error("Channel or Role not found");
 
     const task = (mail: ParsedMail) => () => new Promise(async (res) => {
         Logger.info("Processing mail...");
