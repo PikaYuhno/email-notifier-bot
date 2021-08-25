@@ -24,10 +24,19 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const from = mail.from[0].address
         const fromName = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
+        let cc = null;
+        let t= "";
+        if(mail.cc){
+        cc = mail.cc.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
+        t = '<h6 class="to">Cc:'+cc+'</h6>';
+        }
+        
         const subject = mail.subject;
-        // @todo get date from mail
-        const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
-        const date = new Date().toLocaleDateString("de-DE", options);
+        
+        const date = mail.headers.date.substring(0,22);
+        //gets current date 
+        //const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
+        //const date = new Date().toLocaleDateString("de-DE", options);
 
         console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
         if (!from || !to || !subject) return {};
@@ -68,7 +77,9 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                    </div>
                    <div class="time">${date}</div>
                   </h3>
-                  <h6 class="to">to: ${to}</h6>
+                  <h6 class="to">To: ${to}</h6>
+                  ${t}
+                  
                 </div>
                 <h2 class="subject">Subject: ${subject}</h2>
               </div>
