@@ -6,21 +6,23 @@ import { MessageAttachment, TextChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
+import queue from './queue';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
+
     // check if channel and roles actually exist
     if (!channelId || !roleId) return Logger.error("ChannelId or RoleId not found in config");
     const channel = client.channels.cache.get(channelId) as TextChannel;
     const role = channel.guild.roles.cache.has(roleId);
     if (!channel || !role) return Logger.error("Channel or Role not found");
 
-    Notifier.start(async (mail: ParsedMail) => {
+    const task = (mail: ParsedMail) => () => new Promise(async (res) => {
         Logger.info("Processing mail...");
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
-        console.log("Mail", mail);
+        //console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         const extractedData = await takeScreenshot(mail);
@@ -55,5 +57,11 @@ export const startMailListener = async (client: BotClient) => {
         });
 
         links.length > 0 && await thread.send(`**Links:**\n${links.join("\n")}`);
-    })
+        res(2);
+        Logger.warn("Done with task!");
+    });
+
+    Notifier.start(async (mail: ParsedMail) => {
+        queue.enqueue(task(mail));
+    });
 }

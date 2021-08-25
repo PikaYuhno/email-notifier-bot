@@ -24,12 +24,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const from = mail.from[0].address
         const fromName = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
-        const cc = mail.cc.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");;
+        const cc = mail.cc?.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");;
         const subject = mail.subject;
         const date = mail.headers.date.substring(0, 22);
 
-        console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
-        if (!from || !to || !subject) return {};
+        if (!from || !to) return {};
 
         // init styles
         const head = document.querySelector("head")!;
@@ -70,7 +69,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                   <h6 class="to">To: ${to}</h6>
                   ${cc && `<h6 class="to">Cc: ${cc}</h6>`}
                 </div>
-                <h2 class="subject">Subject: ${subject}</h2>
+                <h2 class="subject">Subject: ${subject || "No subject"}</h2>
               </div>
         `)
 
@@ -81,6 +80,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                 const contentType = attachment.contentType.split("/")[0];
                 if (contentType !== "image") continue;
                 const image = document.querySelector<HTMLImageElement>(`img[src="cid:${attachment.contentId}"]`)!;
+                if (!image) continue;
                 const content = await (window as any).getContent(attachment);
                 image.src = `data:image;base64,${content}`;
             }
@@ -91,7 +91,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
     // extract all links from the html
     // @todo filter wrong links (e.g. mailto:foo@example.com)
-    const links = new Set(await page.$$eval('a', (elements) => (elements.map(elm => (elm as HTMLAnchorElement).href))));
+    const links = new Set(await page.$$eval('a', (elements) => elements?.map(elm => (elm as HTMLAnchorElement).href) || []));
 
     await browser.close();
 
