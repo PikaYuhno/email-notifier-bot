@@ -13,8 +13,8 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
     const filename = Date.now().toString();
 
-    // @todo filter script tags
-    await page.setContent(mail.html as string);
+    // @todo maybe works
+    await page.setContent((mail.html as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ""));
 
     await page.exposeFunction("getContent", (att: Attachment) => Buffer.from(att.content).toString("base64"));
 
@@ -67,7 +67,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                    <div class="time">${date}</div>
                   </h3>
                   <h6 class="to">To: ${to}</h6>
-                  ${cc && `<h6 class="to">Cc: ${cc}</h6>`}
+                  ${cc ? `<h6 class="to">Cc: ${cc}</h6>` : ""}
                 </div>
                 <h2 class="subject">Subject: ${subject || "No subject"}</h2>
               </div>
