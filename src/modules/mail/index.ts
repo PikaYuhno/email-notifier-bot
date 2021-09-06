@@ -2,10 +2,12 @@
 import { ParsedMail } from 'mailparser';
 import { takeScreenshot } from '../screenshot';
 import { Logger } from '../../utils/Logger';
-import { MessageAttachment, TextChannel } from 'discord.js';
+import { DMChannel, MessageAttachment, TextChannel, ThreadChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
@@ -14,6 +16,9 @@ export const startMailListener = async (client: BotClient) => {
     const channel = client.channels.cache.get(channelId) as TextChannel;
     const role = channel.guild.roles.cache.has(roleId);
     if (!channel || !role) return Logger.error("Channel or Role not found");
+    // check if owner exists
+    const owner = await client.users.fetch(process.env.ACCOUNT_OWNER_ID!);
+    if (!owner) return Logger.error("Owner doesn't exist!");
 
     Notifier.start(async (mail: ParsedMail) => {
         Logger.info("Processing mail...");
@@ -38,22 +43,30 @@ export const startMailListener = async (client: BotClient) => {
             }
         }
 
-        const thread = await channel.threads.create({
-            name: mail.subject || "No subject",
-            autoArchiveDuration: 60
-        });
+        let targetChannel: ThreadChannel | DMChannel | null = null;
+
+        // if message goes to the owner
+        if ((mail.to! as any).length === 1) {
+            const owner = await client.users.cache.get(process.env.ACCOUNT_OWNER_ID!)!.fetch();
+            targetChannel = await owner.createDM();
+        } else {
+            targetChannel = await channel.threads.create({
+                name: mail.subject || "No subject",
+                autoArchiveDuration: 60
+            });
+        }
 
         Logger.info("Sending email to discord...");
-        await thread.send({
+        await targetChannel.send({
             files,
-            content: `<@&${client.config.roleId}>`
+            content: (targetChannel.type === "GUILD_PUBLIC_THREAD" && `<@&${client.config.roleId}>`) || null
         });
 
-        attachments.length > 0 && await thread.send({
+        attachments.length > 0 && await targetChannel.send({
             files: attachments,
             content: `**Attachments:**`
         });
 
-        links.length > 0 && await thread.send(`**Links:**\n${links.join("\n")}`);
+        links.length > 0 && await targetChannel.send(`**Links:**\n${links.join("\n")}`);
     })
 }
