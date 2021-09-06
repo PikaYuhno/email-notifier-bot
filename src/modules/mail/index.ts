@@ -8,6 +8,7 @@ import Notifier from './notifier';
 import { BotClient } from '../../types';
 import dotenv from 'dotenv';
 dotenv.config();
+import queue from './queue';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
@@ -21,12 +22,12 @@ export const startMailListener = async (client: BotClient) => {
     const owner = await client.users.fetch(process.env.ACCOUNT_OWNER_ID!);
     if (!owner) return Logger.error("Owner doesn't exist!");
 
-    const task = (mail: ParsedMail) => () => new Promise(async (res) => {
+    const task = (mail: ParsedMail) => () => new Promise<void>(async (res) => {
         Logger.info("Processing mail...");
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
-        //console.log("Mail", mail);
+        console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         const extractedData = await takeScreenshot(mail);
@@ -47,7 +48,8 @@ export const startMailListener = async (client: BotClient) => {
         let targetChannel: ThreadChannel | DMChannel | null = null;
 
         // if message goes to the owner
-        if ((mail.to! as any).length === 1) {
+        const to = mail.to! as any;
+        if (to.length === 1 && to[0].address === process.env.MAIL_USER!) {
             const owner = await client.users.cache.get(process.env.ACCOUNT_OWNER_ID!)!.fetch();
             targetChannel = await owner.createDM();
         } else {
@@ -69,5 +71,11 @@ export const startMailListener = async (client: BotClient) => {
         });
 
         links.length > 0 && await targetChannel.send(`**Links:**\n${links.join("\n")}`);
-    })
+        res();
+        Logger.warn("Done with task!");
+    });
+
+    Notifier.start(async (mail: ParsedMail) => {
+        queue.enqueue(task(mail));
+    });
 }
