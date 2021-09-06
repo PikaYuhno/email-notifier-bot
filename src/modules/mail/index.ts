@@ -11,6 +11,7 @@ dotenv.config();
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
+
     // check if channel and roles actually exist
     if (!channelId || !roleId) return Logger.error("ChannelId or RoleId not found in config");
     const channel = client.channels.cache.get(channelId) as TextChannel;
@@ -20,12 +21,12 @@ export const startMailListener = async (client: BotClient) => {
     const owner = await client.users.fetch(process.env.ACCOUNT_OWNER_ID!);
     if (!owner) return Logger.error("Owner doesn't exist!");
 
-    Notifier.start(async (mail: ParsedMail) => {
+    const task = (mail: ParsedMail) => () => new Promise(async (res) => {
         Logger.info("Processing mail...");
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
-        console.log("Mail", mail);
+        //console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         const extractedData = await takeScreenshot(mail);

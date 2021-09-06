@@ -27,7 +27,12 @@ export default class Configure extends Command {
         let rawdata = fs.readFileSync('./config.json', {
             encoding: "utf-8"
         });
-        let config = JSON.parse(rawdata);
+        let config = null;
+        try {
+            config = JSON.parse(rawdata);
+        } catch (error) {
+            config = { channelId: "", roleId: "" };
+        }
 
         for (let i = 0; i < args.length; i+=2) {
             if (args[i] === "channel") {
@@ -57,5 +62,7 @@ export default class Configure extends Command {
         Notifier.stop();
         await new Promise((res, _) => setTimeout(res, 1000));
         startMailListener(this.client);
+        await super.respond(message.channel, "Successfully configured Bot!");
+        this.client.user?.setPresence({activities: [{name: 'Bot is configured!', type: 'LISTENING'}]});
     }
 }

@@ -13,8 +13,8 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
     const filename = Date.now().toString();
 
-    // @todo filter script tags
-    await page.setContent(mail.html as string);
+    // @todo maybe works
+    await page.setContent((mail.html as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ""));
 
     await page.exposeFunction("getContent", (att: Attachment) => Buffer.from(att.content).toString("base64"));
 
@@ -24,13 +24,11 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const from = mail.from[0].address
         const fromName = mail.headers.from;
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
+        const cc = mail.cc?.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");;
         const subject = mail.subject;
-        // @todo get date from mail
-        const options = { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' } as const;
-        const date = new Date().toLocaleDateString("de-DE", options);
+        const date = mail.headers.date.substring(0, 22);
 
-        console.log(`From: ${from}, To: ${to}, Subject: ${subject}`)
-        if (!from || !to || !subject) return {};
+        if (!from || !to) return {};
 
         // init styles
         const head = document.querySelector("head")!;
@@ -68,9 +66,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                    </div>
                    <div class="time">${date}</div>
                   </h3>
-                  <h6 class="to">to: ${to}</h6>
+                  <h6 class="to">To: ${to}</h6>
+                  ${cc ? `<h6 class="to">Cc: ${cc}</h6>` : ""}
                 </div>
-                <h2 class="subject">Subject: ${subject}</h2>
+                <h2 class="subject">Subject: ${subject || "No subject"}</h2>
               </div>
         `)
 
@@ -81,6 +80,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
                 const contentType = attachment.contentType.split("/")[0];
                 if (contentType !== "image") continue;
                 const image = document.querySelector<HTMLImageElement>(`img[src="cid:${attachment.contentId}"]`)!;
+                if (!image) continue;
                 const content = await (window as any).getContent(attachment);
                 image.src = `data:image;base64,${content}`;
             }
@@ -91,7 +91,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
     // extract all links from the html
     // @todo filter wrong links (e.g. mailto:foo@example.com)
-    const links = new Set(await page.$$eval('a', (elements) => (elements.map(elm => (elm as HTMLAnchorElement).href))));
+    const links = new Set(await page.$$eval('a', (elements) => elements?.map(elm => (elm as HTMLAnchorElement).href) || []));
 
     await browser.close();
 
