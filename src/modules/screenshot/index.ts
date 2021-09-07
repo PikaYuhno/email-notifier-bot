@@ -4,6 +4,7 @@ import { styles } from './style';
 import { ExtractedData } from '../../types';
 import puppeteer from 'puppeteer';
 import { Logger } from '../../utils/Logger';
+import { isValidURL } from '../../utils/Utils';
 
 // using any type because lib doesn't come with correct types
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
@@ -91,7 +92,10 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
 
     // extract all links from the html
     // @todo filter wrong links (e.g. mailto:foo@example.com)
-    const links = new Set(await page.$$eval('a', (elements) => elements?.map(elm => (elm as HTMLAnchorElement).href) || []));
+    const links = new Set(
+        (await page.$$eval('a', (elements) => (elements.map(elm => (elm as HTMLAnchorElement).href) || [])))
+            .filter(elm => isValidURL(elm))
+    );
 
     await browser.close();
 

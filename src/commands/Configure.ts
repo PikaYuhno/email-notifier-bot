@@ -19,9 +19,6 @@ export default class Configure extends Command {
         });
     }
 
-    // @todo get config
-    // create or update db
-    // !configure channel <id> role <id>
     public async run(message: Message, args: string[]): Promise<void> {
         Logger.info(`Executing command configure with params ${args.join(" ")}`);
         let rawdata = fs.readFileSync('./config.json', {
