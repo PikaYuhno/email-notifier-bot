@@ -1,9 +1,8 @@
 import { BotSettings } from '../types/bot/Bot';
-import { MailParser } from 'mailparser';
 import { Config } from 'imap'
 import * as dotenv from 'dotenv';
+import path from 'path';
 dotenv.config();
-
 
 export const settings: BotSettings = {
     presence: {
@@ -14,8 +13,8 @@ export const settings: BotSettings = {
     },
     prefix: '!',
     paths: {
-        commands: 'src/commands',
-        events: 'src/events'
+        commands: path.join(__dirname, "../commands"),
+        events: path.join(__dirname, "../events")
     }
 };
 

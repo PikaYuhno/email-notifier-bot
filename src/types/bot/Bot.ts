@@ -1,4 +1,3 @@
-import { GuildConfig } from '@prisma/client';
 import {
     Client,
     TextChannel,

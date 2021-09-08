@@ -6,6 +6,7 @@ import { BotClient, Config } from '../types/bot/Bot';
 import { Command } from '../Command';
 import { Logger } from '../utils/Logger';
 import fs from 'fs';
+import path from 'path';
 
 @Service()
 export class ActionManager {
@@ -48,8 +49,8 @@ export class ActionManager {
                 } else {
                     const Command: any = (await import(join(
                         __dirname,
-                        '../../',
-                        `${commands}/${cmd}`
+                        '../commands',
+                        `${cmd}`
                     ))).default;
                     const command = new Command(client);
 
@@ -72,8 +73,8 @@ export class ActionManager {
             files.forEach(async evt => {
                 const Event: any = (await import(join(
                     __dirname,
-                    '../../',
-                    `${events}/${evt}`
+                    '../events',
+                    `${evt}`
                 ))).default;
 
                 const event = new Event(client);
