@@ -53,7 +53,7 @@ export const startMailListener = async (client: BotClient) => {
 
         // if message goes to the owner
         const to = mail.to! as any;
-        if (to.length === 1 && to[0].address?.toLowerCase() === process.env.MAIL_USER!) {
+        if (to.length === 1 && to[0].address?.toLowerCase() === process.env.MAIL_USER!.toLowerCase()) {
             const owner = await client.users.cache.get(process.env.ACCOUNT_OWNER_ID!)!.fetch();
             targetChannel = await owner.createDM();
         } else {
