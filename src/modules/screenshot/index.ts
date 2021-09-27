@@ -8,12 +8,20 @@ import { isValidURL } from '../../utils/Utils';
 
 // using any type because lib doesn't come with correct types
 export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
-    Logger.info("Taking screenshot...");
-    const browser = await puppeteer.launch();
+    Logger.info("Launching browser...");
+    const browser = await puppeteer.launch({
+        args: [
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
+            "--disable-setuid-sandbox",
+            "--no-sandbox",
+        ]
+    });
     const page = await browser.newPage();
 
-    const filename = Date.now().toString();
+    const filename = `${Date.now().toString()}.png`;
 
+    Logger.info("Setting content...");
     // @todo maybe works
     await page.setContent((mail.html as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ""));
 
@@ -27,7 +35,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
         const cc = mail.cc?.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");;
         const subject = mail.subject;
-        const date = mail.headers.date.substring(0, 22);
+        const date = mail.headers.date.substring(0, 21);
 
         if (!from || !to) return {};
 
@@ -88,15 +96,18 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         }
     }, mail, styles);
 
-    const output = await page.screenshot({ fullPage: true, path: `screenshots/${filename}.png` }) as Buffer;
+    Logger.info("Taking screenshot");
+    const output = await page.screenshot({ fullPage: true, path: process.env.NODE_ENV === "production" ? undefined : `screenshots/${filename}` }) as Buffer;
 
     // extract all links from the html
     // @todo filter wrong links (e.g. mailto:foo@example.com)
+    Logger.info("Extracting links...");
     const links = new Set(
         (await page.$$eval('a', (elements) => (elements.map(elm => (elm as HTMLAnchorElement).href) || [])))
             .filter(elm => isValidURL(elm))
     );
 
+    Logger.info("Closing browser...");
     await browser.close();
 
     return {

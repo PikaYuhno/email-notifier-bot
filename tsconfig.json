@@ -10,7 +10,6 @@
         "forceConsistentCasingInFileNames": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-		"typeRoots": ["src/@types, node_modules/@types"]
     },
     "exclude": [
         "dist",

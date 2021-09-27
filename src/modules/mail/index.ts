@@ -27,14 +27,18 @@ export const startMailListener = async (client: BotClient) => {
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
-        console.log("Mail", mail);
+        //console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         const extractedData = await takeScreenshot(mail);
 
         if (extractedData && Object.keys(extractedData).length === 0 && extractedData.constructor === Object) return;
 
-        const files: (string | MessageAttachment)[] = [path.join(__dirname, "../../../", `screenshots/${extractedData.filename}.png`)];
+        const finalImage = process.env.NODE_ENV === "production" ?
+            new MessageAttachment(extractedData.screenshotBuffer!, extractedData.filename!) :
+            path.join(__dirname, "../../../", `screenshots/${extractedData.filename}`);
+
+        const files: (string | MessageAttachment)[] = [finalImage];
         let attachments: (string | MessageAttachment)[] = [];
         const links = Array.from(extractedData.links!);
 
@@ -49,7 +53,7 @@ export const startMailListener = async (client: BotClient) => {
 
         // if message goes to the owner
         const to = mail.to! as any;
-        if (to.length === 1 && to[0].address === process.env.MAIL_USER!) {
+        if (to.length === 1 && to[0].address?.toLowerCase() === process.env.MAIL_USER!) {
             const owner = await client.users.cache.get(process.env.ACCOUNT_OWNER_ID!)!.fetch();
             targetChannel = await owner.createDM();
         } else {
