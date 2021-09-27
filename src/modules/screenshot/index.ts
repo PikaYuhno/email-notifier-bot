@@ -22,8 +22,9 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
     const filename = `${Date.now().toString()}.png`;
 
     Logger.info("Setting content...");
+    if (!mail.html && !mail.text) return {};
     // @todo maybe works
-    await page.setContent((mail.html as string).replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ""));
+    await page.setContent((mail.html || mail.text || "undefined").replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ""));
 
     await page.exposeFunction("getContent", (att: Attachment) => Buffer.from(att.content).toString("base64"));
 
