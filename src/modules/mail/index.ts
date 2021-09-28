@@ -27,7 +27,7 @@ export const startMailListener = async (client: BotClient) => {
         //   if (!mail || (typeof mail.html === "boolean" && !mail.html) || !mail.html)
         //         return;
 
-        //console.log("Mail", mail);
+        console.log("Mail", mail);
         const channel = client.channels.cache.get(client.config.channelId) as TextChannel;
 
         const extractedData = await takeScreenshot(mail);
