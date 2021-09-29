@@ -36,7 +36,7 @@ export const takeScreenshot = async (mail: any): Promise<ExtractedData> => {
         const to = mail.to.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");
         const cc = mail.cc?.map((addr: any) => addr.name || addr.address.split("@")[0]).join(", ");;
         const subject = mail.subject;
-        const date = mail.headers.date.substring(0, 21);
+        const date = mail.headers.date.substring(0, 22);
 
         if (!from || !to) return {};
 
