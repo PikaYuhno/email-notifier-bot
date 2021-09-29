@@ -1,6 +1,7 @@
 import { Client } from "../Client";
 import { BotEvent } from "../types";
 import fs from 'fs';
+import { settings } from "../config/config";
 
 export default class GuildCreate implements BotEvent {
 
@@ -11,7 +12,7 @@ export default class GuildCreate implements BotEvent {
             channelId: "",
             roleId: ""
         });
-        fs.writeFileSync('./config.json', data);
+        fs.writeFileSync(settings.configPath, data);
         this.client.user?.setPresence({activities: [{name: 'Bot is not configured!', type: 'PLAYING'}]});
     }
 }

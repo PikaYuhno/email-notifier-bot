@@ -38,6 +38,7 @@ export interface BotSettings {
         commands: string;
         events: string;
     };
+    configPath: string;
 }
 
 export interface BotEvent {

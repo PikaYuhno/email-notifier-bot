@@ -4,4 +4,4 @@ services:
   bot: 
     build: .
     volumes:
-      - './config.json:/usr/src/app/config.json'
+      - './configuration:/usr/src/app/dist/configuration'

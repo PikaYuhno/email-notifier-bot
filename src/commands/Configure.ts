@@ -5,6 +5,7 @@ import fs from 'fs';
 import Notifier from '../modules/mail/notifier';
 import { startMailListener } from '../modules/mail';
 import { Logger } from '../utils/Logger';
+import { settings } from '../config/config';
 
 export default class Configure extends Command {
     constructor(client: BotClient) {
@@ -21,7 +22,7 @@ export default class Configure extends Command {
 
     public async run(message: Message, args: string[]): Promise<void> {
         Logger.info(`Executing command configure with params ${args.join(" ")}`);
-        let rawdata = fs.readFileSync('./config.json', {
+        let rawdata = fs.readFileSync(settings.configPath, {
             encoding: "utf-8"
         });
         let config = null;
@@ -52,7 +53,7 @@ export default class Configure extends Command {
         }
 
         let data = JSON.stringify(config);
-        fs.writeFileSync('./config.json', data);
+        fs.writeFileSync(settings.configPath, data);
         this.client.config = config;
 
         // restart the mail listener

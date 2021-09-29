@@ -15,8 +15,9 @@ export const settings: BotSettings = {
     paths: {
         commands: path.join(__dirname, "../commands"),
         events: path.join(__dirname, "../events")
-    }
-};
+    },
+    configPath: path.join("./configuration", "config.json")
+}
 
 export const imapSettings: Config = {
     user: process.env.MAIL_USER!,

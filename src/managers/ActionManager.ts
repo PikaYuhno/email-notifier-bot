@@ -7,6 +7,7 @@ import { Command } from '../Command';
 import { Logger } from '../utils/Logger';
 import fs from 'fs';
 import path from 'path';
+import { settings } from '../config/config';
 
 @Service()
 export class ActionManager {
@@ -18,9 +19,9 @@ export class ActionManager {
      * @param {BotClient} client The original client, for access to the configuration.
      */
     public initializeConfig(client: BotClient): void {
-        let rawdata = fs.readFileSync("./config.json", {
+        let rawdata = fs.readFileSync(settings.configPath, {
             encoding: "utf-8",
-            flag: 'a+'
+            flag: 'as+'
         });
         let config = null;
         try {
