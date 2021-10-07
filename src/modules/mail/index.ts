@@ -2,7 +2,7 @@
 import { ParsedMail } from 'mailparser';
 import { takeScreenshot } from '../screenshot';
 import { Logger } from '../../utils/Logger';
-import { DMChannel, MessageAttachment, TextChannel, ThreadChannel } from 'discord.js';
+import { DMChannel, MessageAttachment, MessageOptions, MessagePayload, TextChannel, ThreadChannel } from 'discord.js';
 import path from 'path';
 import Notifier from './notifier';
 import { BotClient } from '../../types';
@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import queue from './queue';
 import { sendToChannel } from '../../utils/Utils';
+import { link } from 'fs';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
@@ -75,7 +76,11 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
-        links.length > 0 && await sendToChannel(targetChannel, `**Links:**\n${links.join("\n")}`);
+        const linksStr = links.join("\n")
+        links.length > 0 && await sendToChannel(targetChannel, {
+            files: linksStr.length >= 4000 ? [new MessageAttachment(Buffer.from(linksStr), "links.txt")] : undefined,
+            content: `**Links:**\n${linksStr.length <= 4000 ? links.join("\n") : ""}`
+        });
         res();
         Logger.warn("Done with task!");
     });
