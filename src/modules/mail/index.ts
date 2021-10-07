@@ -9,6 +9,7 @@ import { BotClient } from '../../types';
 import dotenv from 'dotenv';
 dotenv.config();
 import queue from './queue';
+import { sendToChannel } from '../../utils/Utils';
 
 export const startMailListener = async (client: BotClient) => {
     const { channelId, roleId } = client.config;
@@ -64,17 +65,17 @@ export const startMailListener = async (client: BotClient) => {
         }
 
         Logger.info("Sending email to discord...");
-        await targetChannel.send({
+        await sendToChannel(targetChannel, {
             files,
             content: (targetChannel.type === "GUILD_PUBLIC_THREAD" && `<@&${client.config.roleId}>`) || null
         });
 
-        attachments.length > 0 && await targetChannel.send({
+        attachments.length > 0 && await sendToChannel(targetChannel, {
             files: attachments,
             content: `**Attachments:**`
         });
 
-        links.length > 0 && await targetChannel.send(`**Links:**\n${links.join("\n")}`);
+        links.length > 0 && await sendToChannel(targetChannel, `**Links:**\n${links.join("\n")}`);
         res();
         Logger.warn("Done with task!");
     });
