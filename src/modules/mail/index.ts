@@ -76,10 +76,11 @@ export const startMailListener = async (client: BotClient) => {
             content: `**Attachments:**`
         });
 
+        const MESSAGE_CONTENT_LIMIT = 2000;
         const linksStr = links.join("\n")
         links.length > 0 && await sendToChannel(targetChannel, {
-            files: linksStr.length >= 4000 ? [new MessageAttachment(Buffer.from(linksStr), "links.txt")] : undefined,
-            content: `**Links:**\n${linksStr.length <= 4000 ? links.join("\n") : ""}`
+            files: linksStr.length >= MESSAGE_CONTENT_LIMIT ? [new MessageAttachment(Buffer.from(linksStr), "links.txt")] : undefined,
+            content: `**Links:**\n${linksStr.length <= MESSAGE_CONTENT_LIMIT ? links.join("\n") : ""}`
         });
         res();
         Logger.warn("Done with task!");
