@@ -18,8 +18,9 @@ export const sendToChannel = async (channel: ThreadChannel | DMChannel, options:
     try {
         return channel.send(options);
     } catch (error) {
-        Logger.error(`Error: ${error.message}`)
-        if ((error as any).code === 500) {
+        const err = error as any;
+        Logger.error(`Error: ${err.message}`)
+        if ((err as any).code === 500) {
             if (retries === 5) return;
             Logger.info(`Code 500 error, retrying in 2 seconds the ${retries} time`);
             await new Promise((res, _) => setTimeout(res, 2000));
